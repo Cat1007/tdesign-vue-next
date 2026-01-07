@@ -1,7 +1,7 @@
 import { onMounted, Ref, ref, watch, nextTick, onBeforeUnmount, toRefs } from 'vue';
+import { useIntersectionObserver } from '@vueuse/core';
 import { useResizeObserver } from '@tdesign/shared-hooks';
 import { InputValue, TdInputProps } from './../type';
-import { useIntersectionObserver } from '@vueuse/core';
 
 const ANIMATION_TIME = 100;
 
