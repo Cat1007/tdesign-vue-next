@@ -1,4 +1,4 @@
-import { defineComponent, ref, toRefs, watch, computed } from 'vue';
+import { defineComponent, ref, toRefs, watch, computed, ComputedRef } from 'vue';
 import dayjs from 'dayjs';
 import { isArray } from 'lodash-es';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -23,6 +23,7 @@ import {
   useGlobalIcon,
   usePrefixClass,
   useCommonClassName,
+  useEventForward,
 } from '@tdesign/shared-hooks';
 
 dayjs.extend(customParseFormat);
@@ -36,7 +37,7 @@ export default defineComponent({
     const { STATUS } = useCommonClassName();
     const { TimeIcon } = useGlobalIcon({ TimeIcon: TdTimeIcon });
 
-    const disabled = useDisabled();
+    const isDisabled = useDisabled() as ComputedRef<boolean>;
     const currentPanelIdx = ref(undefined);
     const currentValue = ref<Array<string>>(TIME_PICKER_EMPTY);
     const isShowPanel = ref(false);
@@ -156,18 +157,28 @@ export default defineComponent({
       },
     );
 
+    const rangeInputEvents = useEventForward(props.rangeInputProps, {
+      onClear: handleClear,
+      onClick: handleClick,
+      onFocus: handleFocus,
+      onBlur: handleInputBlur,
+    });
+
+    const popupEvents = useEventForward(props.popupProps, {
+      onVisibleChange: handleShowPopup,
+    });
+
     return () => (
       <div class={COMPONENT_NAME.value}>
         <RangeInputPopup
-          disabled={disabled.value}
+          disabled={isDisabled.value}
           popupVisible={isShowPanel.value}
           popupProps={{
             overlayInnerStyle: {
               width: 'auto',
               padding: 0,
             },
-            onVisibleChange: handleShowPopup,
-            ...props.popupProps,
+            ...popupEvents.value,
           }}
           onInputChange={handleInputChange}
           inputValue={isShowPanel.value ? currentValue.value : innerValue.value ?? TIME_PICKER_EMPTY}
@@ -179,13 +190,9 @@ export default defineComponent({
             placeholder: props.placeholder || [globalConfig.value.placeholder, globalConfig.value.placeholder],
             borderless: props.borderless,
             suffixIcon: () => <TimeIcon />,
-            onClear: handleClear,
-            onClick: handleClick,
-            onFocus: handleFocus,
-            onBlur: handleInputBlur,
             readonly: isReadOnly.value || !allowInput.value,
             activeIndex: currentPanelIdx.value,
-            ...props.rangeInputProps,
+            ...rangeInputEvents.value,
           }}
           label={props.label}
           status={props.status}

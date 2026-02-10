@@ -93,9 +93,7 @@ export default function useRowSelect(
       const isIndeterminate =
         intersectionKeys.value.length > 0 && intersectionKeys.value.length < canSelectedRows.value.length;
       const isChecked =
-        intersectionKeys.value.length !== 0 &&
-        canSelectedRows.value.length !== 0 &&
-        intersectionKeys.value.length === canSelectedRows.value.length;
+        canSelectedRows.value.length !== 0 && intersectionKeys.value.length === canSelectedRows.value.length;
       return (
         <Checkbox
           checked={isChecked}
